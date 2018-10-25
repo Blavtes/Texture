@@ -2,17 +2,9 @@
 //  ASLayoutElement.mm
 //  Texture
 //
-//  Copyright (c) 2014-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the /ASDK-Licenses directory of this source tree. An additional
-//  grant of patent rights can be found in the PATENTS file in the same directory.
-//
-//  Modifications to this file made after 4/13/2017 are: Copyright (c) 2017-present,
-//  Pinterest, Inc.  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
+//  Copyright (c) Facebook, Inc. and its affiliates.  All rights reserved.
+//  Changes after 4/13/2017 are: Copyright (c) Pinterest, Inc.  All rights reserved.
+//  Licensed under Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0
 //
 
 #import <AsyncDisplayKit/ASDisplayNode+FrameworkPrivate.h>
@@ -163,7 +155,7 @@ do {\
 @implementation ASLayoutElementStyle {
   ASDN::RecursiveMutex __instanceLock__;
   ASLayoutElementStyleExtensions _extensions;
-  
+
   std::atomic<ASLayoutElementSize> _size;
   std::atomic<CGFloat> _spacingBefore;
   std::atomic<CGFloat> _spacingAfter;
@@ -188,6 +180,7 @@ do {\
   std::atomic<ASEdgeInsets> _padding;
   std::atomic<ASEdgeInsets> _border;
   std::atomic<CGFloat> _aspectRatio;
+  ASStackLayoutAlignItems _parentAlignStyle;
 #endif
 }
 
@@ -210,6 +203,9 @@ do {\
   self = [super init];
   if (self) {
     _size = ASLayoutElementSizeMake();
+#if YOGA
+    _parentAlignStyle = ASStackLayoutAlignItemsNotSet;
+#endif
   }
   return self;
 }
@@ -785,6 +781,10 @@ ASSynthesizeLockingMethodsWithMutex(__instanceLock__)
 - (ASEdgeInsets)padding                       { return _padding.load(); }
 - (ASEdgeInsets)border                        { return _border.load(); }
 - (CGFloat)aspectRatio                        { return _aspectRatio.load(); }
+// private (ASLayoutElementStylePrivate.h)
+- (ASStackLayoutAlignItems)parentAlignStyle {
+  return _parentAlignStyle;
+}
 
 - (void)setFlexWrap:(YGWrap)flexWrap {
   _flexWrap.store(flexWrap);
@@ -829,6 +829,10 @@ ASSynthesizeLockingMethodsWithMutex(__instanceLock__)
 - (void)setAspectRatio:(CGFloat)aspectRatio {
   _aspectRatio.store(aspectRatio);
   ASLayoutElementStyleCallDelegate(ASYogaAspectRatioProperty);
+}
+// private (ASLayoutElementStylePrivate.h)
+- (void)setParentAlignStyle:(ASStackLayoutAlignItems)style {
+  _parentAlignStyle = style;
 }
 
 #endif /* YOGA */

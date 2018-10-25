@@ -2,17 +2,9 @@
 //  ASLayoutTransition.mm
 //  Texture
 //
-//  Copyright (c) 2014-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the /ASDK-Licenses directory of this source tree. An additional
-//  grant of patent rights can be found in the PATENTS file in the same directory.
-//
-//  Modifications to this file made after 4/13/2017 are: Copyright (c) 2017-present,
-//  Pinterest, Inc.  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
+//  Copyright (c) Facebook, Inc. and its affiliates.  All rights reserved.
+//  Changes after 4/13/2017 are: Copyright (c) Pinterest, Inc.  All rights reserved.
+//  Licensed under Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0
 //
 
 #import <AsyncDisplayKit/ASLayoutTransition.h>
@@ -68,11 +60,13 @@ static inline BOOL ASLayoutCanTransitionAsynchronous(ASLayout *layout) {
   NSArray<ASDisplayNode *> *_removedSubnodes;
   std::vector<NSUInteger> _insertedSubnodePositions;
   std::vector<std::pair<ASDisplayNode *, NSUInteger>> _subnodeMoves;
+  ASDisplayNodeLayout _pendingLayout;
+  ASDisplayNodeLayout _previousLayout;
 }
 
 - (instancetype)initWithNode:(ASDisplayNode *)node
-               pendingLayout:(std::shared_ptr<ASDisplayNodeLayout>)pendingLayout
-              previousLayout:(std::shared_ptr<ASDisplayNodeLayout>)previousLayout
+               pendingLayout:(const ASDisplayNodeLayout &)pendingLayout
+              previousLayout:(const ASDisplayNodeLayout &)previousLayout
 {
   self = [super init];
   if (self) {
@@ -88,7 +82,7 @@ static inline BOOL ASLayoutCanTransitionAsynchronous(ASLayout *layout) {
 - (BOOL)isSynchronous
 {
   ASDN::MutexSharedLocker l(__instanceLock__);
-  return !ASLayoutCanTransitionAsynchronous(_pendingLayout->layout);
+  return !ASLayoutCanTransitionAsynchronous(_pendingLayout.layout);
 }
 
 - (void)commitTransition
@@ -164,8 +158,8 @@ static inline BOOL ASLayoutCanTransitionAsynchronous(ASLayout *layout) {
   
   // Create an activity even if no subnodes affected.
   as_activity_create_for_scope("Calculate subnode operations");
-  ASLayout *previousLayout = _previousLayout->layout;
-  ASLayout *pendingLayout = _pendingLayout->layout;
+  ASLayout *previousLayout = _previousLayout.layout;
+  ASLayout *pendingLayout = _pendingLayout.layout;
 
   if (previousLayout) {
 #if AS_IG_LIST_KIT
@@ -234,9 +228,9 @@ static inline BOOL ASLayoutCanTransitionAsynchronous(ASLayout *layout) {
 {
   ASDN::MutexSharedLocker l(__instanceLock__);
   if ([key isEqualToString:ASTransitionContextFromLayoutKey]) {
-    return _previousLayout->layout;
+    return _previousLayout.layout;
   } else if ([key isEqualToString:ASTransitionContextToLayoutKey]) {
-    return _pendingLayout->layout;
+    return _pendingLayout.layout;
   } else {
     return nil;
   }
@@ -246,9 +240,9 @@ static inline BOOL ASLayoutCanTransitionAsynchronous(ASLayout *layout) {
 {
   ASDN::MutexSharedLocker l(__instanceLock__);
   if ([key isEqualToString:ASTransitionContextFromLayoutKey]) {
-    return _previousLayout->constrainedSize;
+    return _previousLayout.constrainedSize;
   } else if ([key isEqualToString:ASTransitionContextToLayoutKey]) {
-    return _pendingLayout->constrainedSize;
+    return _pendingLayout.constrainedSize;
   } else {
     return ASSizeRangeMake(CGSizeZero, CGSizeZero);
   }

@@ -2,12 +2,8 @@
 //  ASCollections.m
 //  Texture
 //
-//  Copyright (c) 2018-present, Pinterest, Inc.  All rights reserved.
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
+//  Copyright (c) Pinterest, Inc.  All rights reserved.
+//  Licensed under Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0
 //
 
 #import "ASCollections.h"
@@ -57,7 +53,7 @@ static const void *ASTransferRetain(CFAllocatorRef allocator, const void *val) {
     return result;
   }
   
-  NSArray *result = (__bridge_transfer NSArray *)CFArrayCreate(gTransferAllocator, (void *)pointers, count, &callbacks);
+  NSArray *result = (__bridge_transfer NSArray *)CFArrayCreate(gTransferAllocator, (const void **)(void *)pointers, count, &callbacks);
   memset(pointers, 0, count * sizeof(id));
   return result;
 }

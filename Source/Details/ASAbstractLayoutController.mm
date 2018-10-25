@@ -2,24 +2,14 @@
 //  ASAbstractLayoutController.mm
 //  Texture
 //
-//  Copyright (c) 2014-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the /ASDK-Licenses directory of this source tree. An additional
-//  grant of patent rights can be found in the PATENTS file in the same directory.
-//
-//  Modifications to this file made after 4/13/2017 are: Copyright (c) 2017-present,
-//  Pinterest, Inc.  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
+//  Copyright (c) Facebook, Inc. and its affiliates.  All rights reserved.
+//  Changes after 4/13/2017 are: Copyright (c) Pinterest, Inc.  All rights reserved.
+//  Licensed under Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0
 //
 
 #import <AsyncDisplayKit/ASAbstractLayoutController.h>
-
+#import <AsyncDisplayKit/ASAbstractLayoutController+FrameworkPrivate.h>
 #import <AsyncDisplayKit/ASAssert.h>
-
-#include <vector>
 
 ASRangeTuningParameters const ASRangeTuningParametersZero = {};
 
@@ -97,6 +87,52 @@ CGRect CGRectExpandToRangeWithScrollableDirections(CGRect rect, ASRangeTuningPar
 
 @implementation ASAbstractLayoutController
 
++ (std::vector<std::vector<ASRangeTuningParameters>>)defaultTuningParameters
+{
+  var tuningParameters = std::vector<std::vector<ASRangeTuningParameters>> (ASLayoutRangeModeCount, std::vector<ASRangeTuningParameters> (ASLayoutRangeTypeCount));
+
+  tuningParameters[ASLayoutRangeModeFull][ASLayoutRangeTypeDisplay] = {
+    .leadingBufferScreenfuls = 1.0,
+    .trailingBufferScreenfuls = 0.5
+  };
+
+  tuningParameters[ASLayoutRangeModeFull][ASLayoutRangeTypePreload] = {
+    .leadingBufferScreenfuls = 2.5,
+    .trailingBufferScreenfuls = 1.5
+  };
+
+  tuningParameters[ASLayoutRangeModeMinimum][ASLayoutRangeTypeDisplay] = {
+    .leadingBufferScreenfuls = 0.25,
+    .trailingBufferScreenfuls = 0.25
+  };
+  tuningParameters[ASLayoutRangeModeMinimum][ASLayoutRangeTypePreload] = {
+    .leadingBufferScreenfuls = 0.5,
+    .trailingBufferScreenfuls = 0.25
+  };
+
+  tuningParameters[ASLayoutRangeModeVisibleOnly][ASLayoutRangeTypeDisplay] = {
+    .leadingBufferScreenfuls = 0,
+    .trailingBufferScreenfuls = 0
+  };
+  tuningParameters[ASLayoutRangeModeVisibleOnly][ASLayoutRangeTypePreload] = {
+    .leadingBufferScreenfuls = 0,
+    .trailingBufferScreenfuls = 0
+  };
+
+  // The Low Memory range mode has special handling. Because a zero range still includes the visible area / bounds,
+  // in order to implement the behavior of releasing all graphics memory (backing stores), ASRangeController must check
+  // for this range mode and use an empty set for displayIndexPaths rather than querying the ASLayoutController for the indexPaths.
+  tuningParameters[ASLayoutRangeModeLowMemory][ASLayoutRangeTypeDisplay] = {
+    .leadingBufferScreenfuls = 0,
+    .trailingBufferScreenfuls = 0
+  };
+  tuningParameters[ASLayoutRangeModeLowMemory][ASLayoutRangeTypePreload] = {
+    .leadingBufferScreenfuls = 0,
+    .trailingBufferScreenfuls = 0
+  };
+  return tuningParameters;
+}
+
 - (instancetype)init
 {
   if (!(self = [super init])) {
@@ -104,46 +140,7 @@ CGRect CGRectExpandToRangeWithScrollableDirections(CGRect rect, ASRangeTuningPar
   }
   ASDisplayNodeAssert(self.class != [ASAbstractLayoutController class], @"Should never create instances of abstract class ASAbstractLayoutController.");
   
-  _tuningParameters = std::vector<std::vector<ASRangeTuningParameters>> (ASLayoutRangeModeCount, std::vector<ASRangeTuningParameters> (ASLayoutRangeTypeCount));
-  
-  _tuningParameters[ASLayoutRangeModeFull][ASLayoutRangeTypeDisplay] = {
-    .leadingBufferScreenfuls = 1.0,
-    .trailingBufferScreenfuls = 0.5
-  };
-  _tuningParameters[ASLayoutRangeModeFull][ASLayoutRangeTypePreload] = {
-    .leadingBufferScreenfuls = 2.5,
-    .trailingBufferScreenfuls = 1.5
-  };
-  
-  _tuningParameters[ASLayoutRangeModeMinimum][ASLayoutRangeTypeDisplay] = {
-    .leadingBufferScreenfuls = 0.25,
-    .trailingBufferScreenfuls = 0.25
-  };
-  _tuningParameters[ASLayoutRangeModeMinimum][ASLayoutRangeTypePreload] = {
-    .leadingBufferScreenfuls = 0.5,
-    .trailingBufferScreenfuls = 0.25
-  };
-
-  _tuningParameters[ASLayoutRangeModeVisibleOnly][ASLayoutRangeTypeDisplay] = {
-    .leadingBufferScreenfuls = 0,
-    .trailingBufferScreenfuls = 0
-  };
-  _tuningParameters[ASLayoutRangeModeVisibleOnly][ASLayoutRangeTypePreload] = {
-    .leadingBufferScreenfuls = 0,
-    .trailingBufferScreenfuls = 0
-  };
-  
-  // The Low Memory range mode has special handling. Because a zero range still includes the visible area / bounds,
-  // in order to implement the behavior of releasing all graphics memory (backing stores), ASRangeController must check
-  // for this range mode and use an empty set for displayIndexPaths rather than querying the ASLayoutController for the indexPaths.
-  _tuningParameters[ASLayoutRangeModeLowMemory][ASLayoutRangeTypeDisplay] = {
-    .leadingBufferScreenfuls = 0,
-    .trailingBufferScreenfuls = 0
-  };
-  _tuningParameters[ASLayoutRangeModeLowMemory][ASLayoutRangeTypePreload] = {
-    .leadingBufferScreenfuls = 0,
-    .trailingBufferScreenfuls = 0
-  };
+  _tuningParameters = [[self class] defaultTuningParameters];
   
   return self;
 }

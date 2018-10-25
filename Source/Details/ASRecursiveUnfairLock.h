@@ -2,23 +2,14 @@
 //  ASRecursiveUnfairLock.h
 //  Texture
 //
-//  Copyright (c) 2018-present, Pinterest, Inc.  All rights reserved.
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
+//  Copyright (c) Pinterest, Inc.  All rights reserved.
+//  Licensed under Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0
 //
 
 #import <Foundation/Foundation.h>
 #import <AsyncDisplayKit/ASBaseDefines.h>
 #import <pthread/pthread.h>
 #import <os/lock.h>
-
-// Don't import C-only header if we're in a C++ file
-#ifndef __cplusplus
-#import <stdatomic.h>
-#endif
 
 // Note: We don't use ATOMIC_VAR_INIT here because C++ compilers don't like it,
 // and it literally does absolutely nothing.

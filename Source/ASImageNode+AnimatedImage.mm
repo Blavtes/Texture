@@ -2,17 +2,9 @@
 //  ASImageNode+AnimatedImage.mm
 //  Texture
 //
-//  Copyright (c) 2014-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the /ASDK-Licenses directory of this source tree. An additional
-//  grant of patent rights can be found in the PATENTS file in the same directory.
-//
-//  Modifications to this file made after 4/13/2017 are: Copyright (c) 2017-present,
-//  Pinterest, Inc.  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
+//  Copyright (c) Facebook, Inc. and its affiliates.  All rights reserved.
+//  Changes after 4/13/2017 are: Copyright (c) Pinterest, Inc.  All rights reserved.
+//  Licensed under Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0
 //
 
 #import <AsyncDisplayKit/ASImageNode.h>
@@ -52,12 +44,12 @@ NSString *const ASAnimatedImageDefaultRunLoopMode = NSRunLoopCommonModes;
 - (void)_locked_setAnimatedImage:(id <ASAnimatedImageProtocol>)animatedImage
 {
   ASAssertLocked(__instanceLock__);
-  
+
   if (ASObjectIsEqual(_animatedImage, animatedImage) && (animatedImage == nil || animatedImage.playbackReady)) {
     return;
   }
   
-  id <ASAnimatedImageProtocol> previousAnimatedImage = _animatedImage;
+  __block id <ASAnimatedImageProtocol> previousAnimatedImage = _animatedImage;
   
   _animatedImage = animatedImage;
   
@@ -78,22 +70,35 @@ NSString *const ASAnimatedImageDefaultRunLoopMode = NSRunLoopCommonModes;
       [self _locked_setShouldAnimate:YES];
     }
   } else {
-      // Clean up after ourselves.
-      self.contents = nil;
-      [self setCoverImage:nil];
-  }
-  
-  [self animatedImageSet:_animatedImage previousAnimatedImage:previousAnimatedImage];
+    // Clean up after ourselves.
     
-  // Animated image can take while to dealloc, do it off the main queue
-  if (previousAnimatedImage != nil) {
-    ASPerformBackgroundDeallocation(&previousAnimatedImage);
+    // Don't bother using a `_locked` version for setting contnst as it should be pretty safe calling it with
+    // reaquire the lock and would add overhead to introduce this version
+    self.contents = nil;
+    [self _locked_setCoverImage:nil];
   }
+
+  // Push calling subclass to the next runloop cycle
+  // We have to schedule the block on the common modes otherwise the tracking mode will not be included and it will
+  // not fire e.g. while scrolling down
+  CFRunLoopPerformBlock(CFRunLoopGetCurrent(), kCFRunLoopCommonModes, ^(void) {
+    [self animatedImageSet:animatedImage previousAnimatedImage:previousAnimatedImage];
+
+    // Animated image can take while to dealloc, do it off the main queue
+    if (previousAnimatedImage != nil) {
+      ASPerformBackgroundDeallocation(&previousAnimatedImage);
+    }
+  });
+  // Don't need to wakeup the runloop as the current is already running
+  // CFRunLoopWakeUp(runLoop); // Should not be necessary
 }
 
 - (void)animatedImageSet:(id <ASAnimatedImageProtocol>)newAnimatedImage previousAnimatedImage:(id <ASAnimatedImageProtocol>)previousAnimatedImage
 {
-  //Subclasses may override
+  // Subclass hook should not be called with the lock held
+  ASAssertUnlocked(__instanceLock__);
+  
+  // Subclasses may override
 }
 
 - (id <ASAnimatedImageProtocol>)animatedImage

@@ -2,17 +2,9 @@
 //  ASLayout.mm
 //  Texture
 //
-//  Copyright (c) 2014-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the /ASDK-Licenses directory of this source tree. An additional
-//  grant of patent rights can be found in the PATENTS file in the same directory.
-//
-//  Modifications to this file made after 4/13/2017 are: Copyright (c) 2017-present,
-//  Pinterest, Inc.  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
+//  Copyright (c) Facebook, Inc. and its affiliates.  All rights reserved.
+//  Changes after 4/13/2017 are: Copyright (c) Pinterest, Inc.  All rights reserved.
+//  Licensed under Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0
 //
 
 #import <AsyncDisplayKit/ASLayout.h>
@@ -28,7 +20,6 @@
 #import <AsyncDisplayKit/ASEqualityHelpers.h>
 #import <AsyncDisplayKit/ASInternalHelpers.h>
 #import <AsyncDisplayKit/ASObjectDescriptionHelpers.h>
-#import <AsyncDisplayKit/ASRectMap.h>
 
 CGPoint const ASPointNull = {NAN, NAN};
 
@@ -62,9 +53,6 @@ ASDISPLAYNODE_INLINE AS_WARN_UNUSED_RESULT BOOL ASLayoutIsDisplayNodeType(ASLayo
   ASLayoutElementType _layoutElementType;
   std::atomic_bool _retainSublayoutElements;
 }
-
-@property (nonatomic, readonly) ASRectMap *elementToRectMap;
-
 @end
 
 @implementation ASLayout
@@ -118,13 +106,6 @@ static std::atomic_bool static_retainsSublayoutLayoutElements = ATOMIC_VAR_INIT(
     }
 
     _sublayouts = [sublayouts copy] ?: @[];
-
-    if (_sublayouts.count > 0) {
-      _elementToRectMap = [ASRectMap rectMapForWeakObjectPointers];
-      for (ASLayout *layout in sublayouts) {
-        [_elementToRectMap setRect:layout.frame forKey:layout.layoutElement];
-      }
-    }
     
     if ([ASLayout shouldRetainSublayoutLayoutElements]) {
       [self retainSublayoutElements];
@@ -302,7 +283,12 @@ static std::atomic_bool static_retainsSublayoutLayoutElements = ATOMIC_VAR_INIT(
 
 - (CGRect)frameForElement:(id<ASLayoutElement>)layoutElement
 {
-  return _elementToRectMap ? [_elementToRectMap rectForKey:layoutElement] : CGRectNull;
+  for (ASLayout *l in _sublayouts) {
+    if (l->_layoutElement == layoutElement) {
+      return l.frame;
+    }
+  }
+  return CGRectNull;
 }
 
 - (CGRect)frame

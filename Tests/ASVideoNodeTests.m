@@ -2,17 +2,9 @@
 //  ASVideoNodeTests.m
 //  Texture
 //
-//  Copyright (c) 2014-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the /ASDK-Licenses directory of this source tree. An additional
-//  grant of patent rights can be found in the PATENTS file in the same directory.
-//
-//  Modifications to this file made after 4/13/2017 are: Copyright (c) 2017-present,
-//  Pinterest, Inc.  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
+//  Copyright (c) Facebook, Inc. and its affiliates.  All rights reserved.
+//  Changes after 4/13/2017 are: Copyright (c) Pinterest, Inc.  All rights reserved.
+//  Licensed under Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0
 //
 
 #import <OCMock/OCMock.h>
@@ -207,9 +199,9 @@
 - (void)doPlayerLayerNodeIsNotAddedIfVisibleButShouldNotBePlaying
 {
   [_videoNode pause];
+  [_videoNode layer];
   [_videoNode setInterfaceState:ASInterfaceStateVisible | ASInterfaceStateDisplay];
-  [_videoNode didLoad];
-  
+
   XCTAssert(![_videoNode.subnodes containsObject:_videoNode.playerNode]);
 }
 
@@ -234,7 +226,8 @@
     return playerLayer;
   }];
   _videoNode.playerNode.layer.frame = CGRectZero;
-  
+
+  [_videoNode layer];
   [_videoNode didEnterVisibleState];
 
   XCTAssertTrue(_videoNode.shouldBePlaying);
@@ -312,7 +305,7 @@
   _videoNode.asset = assetMock;
   _videoNode.shouldAutorepeat = NO;
 
-  [_videoNode didLoad];
+  [_videoNode layer];
   [_videoNode setInterfaceState:ASInterfaceStateVisible | ASInterfaceStateDisplay | ASInterfaceStatePreload];
   [_videoNode prepareToPlayAsset:assetMock withKeys:_requestedKeys];
   [_videoNode play];
@@ -333,7 +326,7 @@
   _videoNode.asset = assetMock;
   _videoNode.shouldAutorepeat = YES;
 
-  [_videoNode didLoad];
+  [_videoNode layer];
   [_videoNode setInterfaceState:ASInterfaceStateVisible | ASInterfaceStateDisplay | ASInterfaceStatePreload];
   [_videoNode prepareToPlayAsset:assetMock withKeys:_requestedKeys];
   [_videoNode play];
@@ -350,6 +343,7 @@
   
   _videoNode.asset = assetMock;
 
+  [_videoNode layer];
   [_videoNode setInterfaceState:ASInterfaceStateVisible | ASInterfaceStateDisplay | ASInterfaceStatePreload];
   [_videoNode prepareToPlayAsset:assetMock withKeys:_requestedKeys];
   ASCATransactionQueueWait(nil);

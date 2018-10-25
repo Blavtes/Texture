@@ -1,5 +1,15 @@
 ## master
 * Add your own contributions to the next release on the line below this with your name.
+- [ASDisplayNode.m] Make sure node is loaded before enter visible. [Max Wang](https://github.com/wsdwsd0829). [#886](https://github.com/TextureGroup/Texture/pull/886)
+- [ASTextNode2] Add improved support for all line-break modes in experimental text node. [Kevin Smith](https://github.com/wiseoldduck). [#1150](https://github.com/TextureGroup/Texture/pull/1150)
+- [ASExperimentalFeatures.m] Fix mismatch name in experimental features. [Max Wang](https://github.com/wsdwsd0829). [#1159](https://github.com/TextureGroup/Texture/pull/1159)
+- [ASCollectionViewLayoutController] Set default tuning parameters before view is loaded. [Max Wang](https://github.com/wsdwsd0829). [#1158](https://github.com/TextureGroup/Texture/pull/1158)
+- [ASPhotosFrameworkImageRequestTests] Guard photo library with macro for tests. [Max Wang](https://github.com/wsdwsd0829). [#1147](https://github.com/TextureGroup/Texture/pull/1147)
+- [ASDisplayNode] Do not cancel display when in exit hierarchy but let interface state changing to handle it. [Max Wang](https://github.com/wsdwsd0829). [#1110](https://github.com/TextureGroup/Texture/pull/1110)
+- [Breaking][ASDisplayNode] Make interface state delegate protocol required. [Max Wang](https://github.com/wsdwsd0829). [#1112](https://github.com/TextureGroup/Texture/pull/1112)
+- [ASCollectionView] Fix reording of cells manually for iOS 9 & 10. [Max Wang](https://github.com/wsdwsd0829). [#1081](https://github.com/TextureGroup/Texture/pull/1081)
+- [ASDisplayNode] Allow add/remove interface state delegates on background thread. [Max Wang](https://github.com/wsdwsd0829). [#1090](https://github.com/TextureGroup/Texture/pull/1090)
+- [License] Simplify the Texture license to be pure Apache 2 (removing ASDK-Licenses).[Scott Goodson](https://github.com/appleguy) [#1077](https://github.com/TextureGroup/Texture/pull/1077) 
 - [ASNetworkImageNode] Allow delegate methods to be called on background thread. [Max Wang](https://github.com/wsdwsd0829). [#1007](https://github.com/TextureGroup/Texture/pull/1007)
 - [ASLayoutTransition] Add support for preserving order after node moves during transitions. (This order defines the z-order as well.) [Kevin Smith](https://github.com/wiseoldduck) [#1006]
 - [ASDisplayNode] Adds support for multiple interface state delegates. [Garrett Moon](https://github.com/garrettmoon) [#979](https://github.com/TextureGroup/Texture/pull/979)
@@ -17,6 +27,7 @@
 - Create a method to transfer strong C-arrays into immutable NSArrays, reducing retain/release traffic. [Adlai Holler](https://github.com/Adlai-Holler)
 - Remove yoga layout spec, which has been superseded by tighter Yoga integration (`ASDisplayNode+Yoga.h`)
 - Properly consider node for responder methods [Michael Schneider](https://github.com/maicki)
+- Introduce let / var macros and some further cleanup. [Michael Schneider](https://github.com/maicki) [#1012](https://github.com/TextureGroup/Texture/pull/1012)
 - [IGListKit] Adds missing UIScrollViewDelegate method to DataSource proxy [Sergey Pronin](https://github.com/wannabehero)
 - Fix misleading/scary stack trace shown when an assertion occurs during node measurement [Huy Nguyen](https://github.com/nguyenhuy) [#1022](https://github.com/TextureGroup/Texture/pull/1022)
 - Fix build on 32-bit simulator in Xcode 9.3 and later, caused by `Thread-local storage is not supported on this architecture.` [Adlai Holler](https://github.com/Adlai-Holler)
@@ -32,7 +43,28 @@
 - Add an experimental feature that reuses CTFramesetter objects in ASTextNode2 to improve performance. [Adlai Holler](https://github.com/Adlai-Holler)
 - Add NS_DESIGNATED_INITIALIZER to ASViewController initWithNode: [Michael Schneider](https://github.com/maicki) [#1054](https://github.com/TextureGroup/Texture/pull/1054)
 - Optimize text stack by removing unneeded copying. [Adlai Holler](https://github.com/Adlai-Holler)
+- Renamed `accessibleElements` to `accessibilityElements` and removed the re-definition of the property in ASDisplayView. [Jia Wern Lim](https://github.com/jiawernlim)
 - Remove double scaling of lineHeightMultiple & paragraphSpacing attributes in ASTextKitFontSizeAdjuster. [Eric Jensen](https://github.com/ejensen)
+- Add a delegate callback for when the framework has initialized. [Adlai Holler](https://github.com/Adlai-Holler)
+- Improve TextNode2 by skipping an unneeded copy during measurement. [Adlai Holler](https://github.com/Adlai-Holler)
+- Improve locking around clearContents [Michael Schneider](https://github.com/maicki)
+- Unlock before cleanup and calling out to subclass hooks for animated images. [Michael Schneider](https://github.com/maicki) [#1087](https://github.com/TextureGroup/Texture/pull/1087)
+- [ASDisplayNode] Fix interface state update for layer backed nodes when layer thrashes (interface coaleascing case).[Max Wang](https://github.com/wsdwsd0829). [#1111](https://github.com/TextureGroup/Texture/pull/1111)
+- [ASPINRemoteImageManager] Add a new API for setting a preconfigured PINRemoteImageManager. [Ernest Ma](https://github.com/ernestmama) [#1124](https://github.com/TextureGroup/Texture/pull/1124)
+- Small optimization to the layout spec & yoga layout systems by eliminating array copies. [Adlai Holler](https://github.com/Adlai-Holler)
+- Optimize layout process by removing `ASRectMap`.  [Adlai Holler](https://github.com/Adlai-Holler)
+- Remove necessity to use view to access rangeController in ASTableNode, ASCollectionNode. [Michael Schneider](https://github.com/maicki)
+- Remove display node's reliance on shared_ptr. [Adlai Holler](https://github.com/Adlai-Holler)
+- [ASCollectionView] Fix a crash that is caused by clearing a collection view's data while it's still being used. [Huy Nguyen](https://github.com/nguyenhuy) [#1154](https://github.com/TextureGroup/Texture/pull/1154)
+- Clean up timing of layout tree flattening/ copying of unflattened tree for Weaver. [Michael Zuccarino](https://github.com/mikezucc) [#1157](https://github.com/TextureGroup/Texture/pull/1157)
+- Fix crash setting attributed text on multiple threads [Michael Schneider](https://github.com/maicki)
+- [ASTextNode2] Ignore certain text alignments while calculating intrinsic size [Huy Nguyen](https://github.com/nguyenhuy) [#1166](https://github.com/TextureGroup/Texture/pull/1166)
+- Fix mismatch in UIAccessibilityAction selector method [Michael Schneider](https://github.com/maicki) [#1169](https://github.com/TextureGroup/Texture/pull/1169)
+- [ASDisplayNode] Expose default Texture-set accessibility values as properties. [Jia Wern Lim](https://github.com/jiawernlim) [#1170](https://github.com/TextureGroup/Texture/pull/1170)
+- ASTableNode init method match checks from ASCollectionNode [Michael Schneider](https://github.com/maicki) [#1171]
+- Add NSLocking conformance to ASNodeController [Michael Schneider](https://github.com/maicki)[#1179] (https://github.com/TextureGroup/Texture/pull/1179)
+- Don’t handle touches on additional attributed message if passthrough is enabled [Michael Schneider](https://github.com/maicki)[#1184] (https://github.com/TextureGroup/Texture/pull/1184)
+- Yoga integration improvements [Michael Schneider](https://github.com/maicki)[#1187] (https://github.com/TextureGroup/Texture/pull/1187)
 
 ## 2.7
 - Fix pager node for interface coalescing. [Max Wang](https://github.com/wsdwsd0829) [#877](https://github.com/TextureGroup/Texture/pull/877)
@@ -93,7 +125,6 @@
 - Add an experimental deallocation queue implementation that's more efficient. [Adlai Holler](https://github.com/Adlai-Holler)
 - Standardize property declaration style. [Adlai Holler](https://github.com/Adlai-Holler)
 - [ASTableView] Fix an issue that causes table view to use one of a cell's invalid layouts instead of generating a new one. [Huy Nguyen](https://github.com/nguyenhuy) [#942](https://github.com/TextureGroup/Texture/pull/942)
-- Introduce let / var macros and some further cleanup. [Michael Schneider](https://github.com/maicki) [#1012](https://github.com/TextureGroup/Texture/pull/1012)
 
 ## 2.6
 - [Xcode 9] Updated to require Xcode 9 (to fix warnings) [Garrett Moon](https://github.com/garrettmoon)

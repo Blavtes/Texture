@@ -2,17 +2,9 @@
 //  ASDisplayNodeInternal.h
 //  Texture
 //
-//  Copyright (c) 2014-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the /ASDK-Licenses directory of this source tree. An additional
-//  grant of patent rights can be found in the PATENTS file in the same directory.
-//
-//  Modifications to this file made after 4/13/2017 are: Copyright (c) 2017-present,
-//  Pinterest, Inc.  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
+//  Copyright (c) Facebook, Inc. and its affiliates.  All rights reserved.
+//  Changes after 4/13/2017 are: Copyright (c) Pinterest, Inc.  All rights reserved.
+//  Licensed under Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0
 //
 
 //
@@ -91,6 +83,8 @@ AS_EXTERN NSString * const ASRenderingEngineDidDisplayNodesScheduledBeforeTimest
 
   _ASPendingState *_pendingViewState;
   ASInterfaceState _pendingInterfaceState;
+  ASInterfaceState _preExitingInterfaceState;
+  
   UIView *_view;
   CALayer *_layer;
 
@@ -170,8 +164,8 @@ AS_EXTERN NSString * const ASRenderingEngineDidDisplayNodesScheduledBeforeTimest
   
   std::atomic<int32_t> _pendingTransitionID;
   ASLayoutTransition *_pendingLayoutTransition;
-  std::shared_ptr<ASDisplayNodeLayout> _calculatedDisplayNodeLayout;
-  std::shared_ptr<ASDisplayNodeLayout> _pendingDisplayNodeLayout;
+  ASDisplayNodeLayout _calculatedDisplayNodeLayout;
+  ASDisplayNodeLayout _pendingDisplayNodeLayout;
   
   /// Sentinel for layout data. Incremented when we get -setNeedsLayout / -invalidateCalculatedLayout.
   /// Starts at 1.
@@ -255,8 +249,10 @@ AS_EXTERN NSString * const ASRenderingEngineDidDisplayNodesScheduledBeforeTimest
   NSTimeInterval _debugTimeToAddSubnodeViews;
   NSTimeInterval _debugTimeForDidLoad;
 #endif
-  
-  NSHashTable <id <ASInterfaceStateDelegate>> *_interfaceStateDelegates;
+
+  /// Fast path: tells whether we've ever had an interface state delegate before.
+  BOOL _hasHadInterfaceStateDelegates;
+  __weak id<ASInterfaceStateDelegate> _interfaceStateDelegates[AS_MAX_INTERFACE_STATE_DELEGATES];
 }
 
 + (void)scheduleNodeForRecursiveDisplay:(ASDisplayNode *)node;
@@ -265,7 +261,7 @@ AS_EXTERN NSString * const ASRenderingEngineDidDisplayNodesScheduledBeforeTimest
 @property (nullable, nonatomic, readonly) _ASDisplayLayer *asyncLayer;
 
 /// Bitmask to check which methods an object overrides.
-@property (nonatomic, readonly) ASDisplayNodeMethodOverrides methodOverrides;
+- (ASDisplayNodeMethodOverrides)methodOverrides;
 
 /**
  * Invoked before a call to setNeedsLayout to the underlying view
@@ -339,6 +335,13 @@ AS_EXTERN NSString * const ASRenderingEngineDidDisplayNodesScheduledBeforeTimest
 - (void)applyPendingViewState;
 
 /**
+ * Makes a local copy of the interface state delegates then calls the block on each.
+ *
+ * Lock is not held during block invocation. Method must not be called with the lock held.
+ */
+- (void)enumerateInterfaceStateDelegates:(void(NS_NOESCAPE ^)(id<ASInterfaceStateDelegate> delegate))block;
+
+/**
  * // TODO: NOT YET IMPLEMENTED
  *
  * @abstract Prevents interface state changes from affecting the node, until disabled.
@@ -380,6 +383,15 @@ AS_EXTERN NSString * const ASRenderingEngineDidDisplayNodesScheduledBeforeTimest
 @property (nonatomic) CGFloat layerCornerRadius;
 
 - (BOOL)_locked_insetsLayoutMarginsFromSafeArea;
+
+@end
+
+@interface ASDisplayNode (ASLayoutElementPrivate)
+
+/**
+ * Returns the internal style object or creates a new if no exists. Need to be called with lock held.
+ */
+- (ASLayoutElementStyle *)_locked_style;
 
 @end
 

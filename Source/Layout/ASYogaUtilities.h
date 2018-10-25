@@ -2,12 +2,8 @@
 //  ASYogaUtilities.h
 //  Texture
 //
-//  Copyright (c) 2017-present, Pinterest, Inc.  All rights reserved.
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
+//  Copyright (c) Pinterest, Inc.  All rights reserved.
+//  Licensed under Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0
 //
 
 #import <AsyncDisplayKit/ASAvailability.h>
@@ -30,6 +26,7 @@
 
 @end
 
+// pre-order, depth-first
 AS_EXTERN void ASDisplayNodePerformBlockOnEveryYogaChild(ASDisplayNode *node, void(^block)(ASDisplayNode *node));
 
 #pragma mark - Yoga Type Conversion Helpers
@@ -44,9 +41,10 @@ AS_EXTERN float yogaDimensionToPercent(ASDimension dimension);
 AS_EXTERN ASDimension dimensionForEdgeWithEdgeInsets(YGEdge edge, ASEdgeInsets insets);
 
 AS_EXTERN void ASLayoutElementYogaUpdateMeasureFunc(YGNodeRef yogaNode, id <ASLayoutElement> layoutElement);
+AS_EXTERN float ASLayoutElementYogaBaselineFunc(YGNodeRef yogaNode, const float width, const float height);
 AS_EXTERN YGSize ASLayoutElementYogaMeasureFunc(YGNodeRef yogaNode,
-                                                float width, YGMeasureMode widthMode,
-                                                float height, YGMeasureMode heightMode);
+                                      float width, YGMeasureMode widthMode,
+                                      float height, YGMeasureMode heightMode);
 
 #pragma mark - Yoga Style Setter Helpers
 

@@ -1,7 +1,7 @@
 Pod::Spec.new do |spec|
   spec.name         = 'Texture'
   spec.version      = '2.7'
-  spec.license      =  { :type => 'BSD and Apache 2',  }
+  spec.license      =  { :type => 'Apache 2',  }
   spec.homepage     = 'http://texturegroup.org'
   spec.authors      = { 'Huy Nguyen' => 'huy@pinterest.com', 'Garrett Moon' => 'garrett@excitedpixel.com', 'Scott Goodson' => 'scottgoodson@gmail.com', 'Michael Schneider' => 'schneider@pinterest.com', 'Adlai Holler' => 'adlai@pinterest.com' }
   spec.summary      = 'Smooth asynchronous user interfaces for iOS apps.'
@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
 
   # Subspecs
   spec.subspec 'Core' do |core|
-    core.compiler_flags = '-fno-exceptions -fno-objc-arc-exceptions'
+    core.compiler_flags = '-fno-exceptions'
     core.public_header_files = [
       'Source/*.h',
       'Source/Details/**/*.h',
